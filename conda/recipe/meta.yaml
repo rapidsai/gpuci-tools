@@ -1,0 +1,25 @@
+# Copyright (c) 2018, NVIDIA CORPORATION.
+
+{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') + environ.get('VERSION_SUFFIX', '') %}
+{% set git_revision_count=environ.get('GIT_DESCRIBE_NUMBER', 0) %}
+
+package:
+  name: gpuci-tools
+  version: {{ version }}
+
+source:
+  path: ../../..
+
+build:
+  number: {{ git_revision_count }}
+
+test:
+  commands:
+    - gpuci_logger "test"
+    - gpuci_retry sleep 1
+
+about:
+  home: https://github.com/rapidsai/gpuci-tools
+  license: Apache-2.0
+  summary: 'User tools for use within the gpuCI environment'
+  dev_url: https://github.com/rapidsai/gpuci-tools
