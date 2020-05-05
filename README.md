@@ -6,7 +6,7 @@ User tools for use within the gpuCI environment
 
 ### `conda` method
 ```
-conda install -c rapidsai-nightly gpuci-tools
+conda install -c gpuci gpuci-tools
 ```
 
 ### `curl` method
