@@ -1,4 +1,4 @@
-# gpuci-tools
+# gpuci-tools [![Build Status](https://gpuci.gpuopenanalytics.com/buildStatus/icon?job=gpuci%2Fconda%2Fgpuci-tools)](https://gpuci.gpuopenanalytics.com/job/gpuci/job/conda/job/gpuci-tools/)
 User tools for use within the gpuCI environment
 
 
