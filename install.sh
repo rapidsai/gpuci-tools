@@ -1,7 +1,7 @@
 #!/bin/bash
 # Installer for gpuCI tools
 
-URL="https://raw.githubusercontent.com/rapidsai/gpuci-tools/master/tools"
+URL="https://raw.githubusercontent.com/rapidsai/gpuci-tools/main/tools"
 
 function logging {
   TS=`date`
