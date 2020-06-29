@@ -17,7 +17,7 @@ test:
   commands:
     - gpuci_logger "test"
     - gpuci_retry sleep 1
-    - gpuci_conda_retry search -c rapidsai rapids[subdir=linux-64]
+    - gpuci_conda_retry search -c rapidsai --platform linux-64 rapids
 
 about:
   home: https://github.com/rapidsai/gpuci-tools
