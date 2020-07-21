@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# condaretry - wrapper for conda that retries the command after a CondaHTTPError
+# gpuci_conda_retry - wrapper for conda that retries the command after a CondaHTTPError
 # or ChecksumMismatchError (ideally, any conda error that is normally resolved
 # by retrying).
 
 set -o pipefail
 
 condaretry_help="
-condaretry options:
+gpuci_conda_retry options:
 
    --condaretry_max_retries=n      Retry the conda command at most n times (default is 3)
    --condaretry_sleep_interval=n   Sleep n seconds between retries (default is 5)
