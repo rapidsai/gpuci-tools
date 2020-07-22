@@ -53,9 +53,9 @@ while (( ${exitcode} != 0 )) && \
        (grep -q ChecksumMismatchError: ${outfile})); do
 
    retries=$(expr ${retries} + 1)
-   gpuci_logger "gpuci_conda_retry: ${retries} OF ${max_retries} - sleeping for ${sleep_interval} seconds..."
+   gpuci_logger "gpuci_conda_retry: ${retries} OF ${max_retries} -> sleeping for ${sleep_interval} seconds..."
    sleep ${sleep_interval}
-   gpuci_logger "gpuci_conda_retry: sleep done"
+   gpuci_logger "gpuci_conda_retry: sleep done..."
 
    ${condaCmd} ${args} 2>&1| tee ${outfile}
    exitcode=$?
