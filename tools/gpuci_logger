@@ -6,9 +6,17 @@
 #
 function gpuci_logger {
   TS=`date '+%x %T'`
-  echo -e "\n"
-  echo ">>gpuCI log<< [$TS] $@"
-  echo -e "\n"
+  MSG_CNT=`echo "$@" | wc -c`
+  WIDTH=$((MSG_CNT+6))
+  BAR=""
+  for ((i = 0 ; i <= $WIDTH ; i++)); do
+    BAR="${BAR}─"
+  done
+
+  echo -e "\n\e[32mgpuCI logger\e[0m » [$TS]"
+  echo -e "\e[32m┌${BAR}┐\e[0m"
+  echo -e "\e[32m|    $@    |\e[0m"
+  echo -e "\e[32m└${BAR}┘\e[0m\n"
 }
 
 gpuci_logger $@
