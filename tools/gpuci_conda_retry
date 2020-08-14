@@ -28,6 +28,12 @@ args=""
 #condaCmd=./testConda
 condaCmd=conda
 
+# Function to output messages to stderr
+# FIXME - extend `gpuci_logger` or make another script for this
+function echo_stderr {
+    echo "    [gpuci_conda_retry] $@" >&2
+}
+
 # Function to run conda and check output for specific retryable errors
 # input variables:
 #    condaCmd: the command used for running conda, which accepts the args
@@ -42,20 +48,16 @@ function runConda {
     needToRetry=0
 
     if (( ${exitcode} != 0 )); then
-        gpuci_logger "conda returned non-zero code: ${exitcode}"
-
-        echo "   condaretry: checking conda output in ${outfile}"
         if grep -q CondaHTTPError: ${outfile}; then
-            echo "   condaretry: Found CondaHTTPError: in output"
+            echo_stderr "Retrying, found 'CondaHTTPError:' in output..."
             needToRetry=1
         elif grep -q ChecksumMismatchError: ${outfile}; then
-            echo "   condaretry: Found ChecksumMismatchError: in output"
+            echo_stderr "Retrying, found 'ChecksumMismatchError:' in output..."
             needToRetry=1
         else
-            echo "   condaretry: no retryable conda errors detected in ${outfile}"
+            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:'"
+            echo_stderr "conda returned non-zero code: ${exitcode}"
         fi
-    else
-        gpuci_logger "conda returned success code: ${exitcode}"
     fi
 }
 
@@ -87,9 +89,9 @@ while (( ${needToRetry} == 1 )) && \
       (( ${retries} < ${max_retries} )); do
 
    retries=$(expr ${retries} + 1)
-   gpuci_logger "gpuci_conda_retry: ${retries} OF ${max_retries} -> sleeping for ${sleep_interval} seconds..."
+   echo_stderr "${retries} OF ${max_retries} -> sleeping for ${sleep_interval} seconds..."
    sleep ${sleep_interval}
-   gpuci_logger "gpuci_conda_retry: sleep done..."
+   echo_stderr "sleep done..."
 
    runConda ${args}
 done
