@@ -25,8 +25,8 @@ args=""
 
 # Temporarily set this to something else (eg. a script called "testConda" that
 # prints "CondaHTTPError:" and exits with 1) for testing this script.
-#condaCmd=./testConda
-condaCmd=conda
+condaCmd=./testConda
+#condaCmd=conda
 
 # Function to output messages to stderr
 # FIXME - extend `gpuci_logger` or make another script for this
@@ -46,18 +46,30 @@ function runConda {
     ${condaCmd} ${args} 2>&1| tee ${outfile}
     exitcode=$?
     needToRetry=0
+    retryingMsg=""
 
     if (( ${exitcode} != 0 )); then
+        # Show exit code
+        echo_stderr "conda returned exit code: ${exitcode}"
+
         if grep -q CondaHTTPError: ${outfile}; then
-            echo_stderr "Retrying, found 'CondaHTTPError:' in output..."
+            retryingMsg="Retrying, found 'CondaHTTPError:' in output..."
             needToRetry=1
         elif grep -q ChecksumMismatchError: ${outfile}; then
-            echo_stderr "Retrying, found 'ChecksumMismatchError:' in output..."
+            retryingMsg="Retrying, found 'ChecksumMismatchError:' in output..."
             needToRetry=1
         else
             echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:'"
-            echo_stderr "conda returned non-zero code: ${exitcode}"
         fi
+    fi
+
+    if (( ${needToRetry} == 1 )) && \
+       (( ${retries} >= ${max_retries} )); then
+        # Catch instance where we run out of retries
+        echo_stderr "Exiting, reached max retries..."
+    else
+        # Give reason for retry
+        echo_stderr $retryingMsg
     fi
 }
 
@@ -89,9 +101,9 @@ while (( ${needToRetry} == 1 )) && \
       (( ${retries} < ${max_retries} )); do
 
    retries=$(expr ${retries} + 1)
-   echo_stderr "${retries} OF ${max_retries} -> sleeping for ${sleep_interval} seconds..."
+   echo_stderr "Waiting, retry ${retries} of ${max_retries} -> sleeping for ${sleep_interval} seconds..."
    sleep ${sleep_interval}
-   echo_stderr "sleep done..."
+   echo_stderr "Starting, retry ${retries} of ${max_retries} -> sleep done..."
 
    runConda ${args}
 done
