@@ -4,6 +4,8 @@
 # or ChecksumMismatchError (ideally, any conda error that is normally resolved
 # by retrying).
 
+# This must be set in order for the script to recognize failing exit codes when
+# output is piped to tee
 set -o pipefail
 
 condaretry_help="
@@ -17,6 +19,7 @@ gpuci_conda_retry options:
 max_retries=3
 sleep_interval=5
 exitcode=0
+needToRetry=0
 retries=0
 args=""
 
@@ -25,7 +28,40 @@ args=""
 #condaCmd=./testConda
 condaCmd=conda
 
+# Function to run conda and check output for specific retryable errors
+# input variables:
+#    condaCmd: the command used for running conda, which accepts the args
+#              passed to this script
+#    outfile: file to tee output to for checking, likely a temp file
+# output variables:
+#    exitcode: the exit code from running ${condaCmd} ${args}
+#    needToRetry: 1 if the command should be retried, 0 if it should not be
+function runConda {
+    ${condaCmd} ${args} 2>&1| tee ${outfile}
+    exitcode=$?
+    needToRetry=0
+
+    if (( ${exitcode} != 0 )); then
+        gpuci_logger "conda returned non-zero code: ${exitcode}"
+
+        echo "   condaretry: checking conda output in ${outfile}"
+        if grep -q CondaHTTPError: ${outfile}; then
+            echo "   condaretry: Found CondaHTTPError: in output"
+            needToRetry=1
+        elif grep -q ChecksumMismatchError: ${outfile}; then
+            echo "   condaretry: Found ChecksumMismatchError: in output"
+            needToRetry=1
+        else
+            echo "   condaretry: no retryable conda errors detected in ${outfile}"
+        fi
+    else
+        gpuci_logger "conda returned success code: ${exitcode}"
+    fi
+}
+
+
 # Process and remove args recognized only by this script, save others for conda
+# Process help separately
 for arg in $*; do
    opt=${arg%%=*}
    val=${arg##*=}
@@ -42,23 +78,20 @@ for arg in $*; do
    fi
 done
 
+# Run command
 outfile=$(mktemp)
-${condaCmd} ${args} 2>&1| tee ${outfile}
-exitcode=$?
+runConda ${args}
 
 # Retry loop, only if needed
-while (( ${exitcode} != 0 )) && \
-      (( ${retries} < ${max_retries} )) && \
-      ((grep -q CondaHTTPError: ${outfile}) ||
-       (grep -q ChecksumMismatchError: ${outfile})); do
+while (( ${needToRetry} == 1 )) && \
+      (( ${retries} < ${max_retries} )); do
 
    retries=$(expr ${retries} + 1)
    gpuci_logger "gpuci_conda_retry: ${retries} OF ${max_retries} -> sleeping for ${sleep_interval} seconds..."
    sleep ${sleep_interval}
    gpuci_logger "gpuci_conda_retry: sleep done..."
 
-   ${condaCmd} ${args} 2>&1| tee ${outfile}
-   exitcode=$?
+   runConda ${args}
 done
 
 rm -f ${outfile}
