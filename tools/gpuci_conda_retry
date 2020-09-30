@@ -62,8 +62,11 @@ function runConda {
             retryingMsg="Retrying, found 'JSONDecodeError:' in output..."
             needToRetry=1
         else
-            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:'"
+            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:'"
         fi
+    else
+        # Successful run
+        break
     fi
 
     if (( ${needToRetry} == 1 )) && \
