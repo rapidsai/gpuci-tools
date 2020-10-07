@@ -64,19 +64,16 @@ function runConda {
         else
             echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:'"
         fi
-    else
-        # Successful run
-        break
-    fi
 
-    if (( ${needToRetry} == 1 )) && \
-       (( ${retries} >= ${max_retries} )); then
-        # Catch instance where we run out of retries
-        echo_stderr "Exiting, reached max retries..."
-    else
-        # Give reason for retry
-        echo_stderr $retryingMsg
-    fi
+        if (( ${needToRetry} == 1 )) && \
+           (( ${retries} >= ${max_retries} )); then
+            # Catch instance where we run out of retries
+            echo_stderr "Exiting, reached max retries..."
+        else
+            # Give reason for retry
+            echo_stderr $retryingMsg
+        fi
+fi
 }
 
 
