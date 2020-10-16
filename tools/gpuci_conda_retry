@@ -1,11 +1,27 @@
 #!/bin/bash
-
-# gpuci_conda_retry - wrapper for conda that retries the command after a CondaHTTPError
-# or ChecksumMismatchError (ideally, any conda error that is normally resolved
-# by retrying).
-
+#
+# gpuci_conda_retry
+# 
+# wrapper for conda that retries the command after a CondaHTTPError,
+# ChecksumMismatchError, or JSONDecodeError (ideally, any conda error that
+# is normally resolved by retrying)
+#
 # This must be set in order for the script to recognize failing exit codes when
 # output is piped to tee
+#
+# Example usage:
+# $ gpuci_conda_retry install cudatoolkit=11.0 rapids=0.16
+#
+# Configurable options are set using the following env vars:
+#
+# GPUCI_CONDA_RETRY_MAX       - set to a positive integer to set the max number of retry
+#                               attempts (attempts after the initial try).
+#                               Default is 3 retries
+#
+# GPUCI_CONDA_RETRY_SLEEP     - set to a positive integer to set the duration, in
+#                               seconds, to wait between retries.
+#                               Default is a 10 second sleep
+#
 set -o pipefail
 
 condaretry_help="
@@ -14,10 +30,19 @@ gpuci_conda_retry options:
    --condaretry_max_retries=n      Retry the conda command at most n times (default is 3)
    --condaretry_sleep_interval=n   Sleep n seconds between retries (default is 5)
 
+ALSO gpuci_conda_retry options can be set using the following env vars:
+
+    GPUCI_CONDA_RETRY_MAX       - set to a positive integer to set the max number of retry
+                                  attempts (attempts after the initial try).
+                                  Default is 3 retries
+
+    GPUCI_CONDA_RETRY_SLEEP     - set to a positive integer to set the duration, in
+                                  seconds, to wait between retries.
+                                  Default is a 10 second sleep
 ==========
 "
-max_retries=3
-sleep_interval=5
+max_retries=${GPUCI_CONDA_RETRY_MAX:=3}
+sleep_interval=${GPUCI_CONDA_RETRY_SLEEP:=10}
 exitcode=0
 needToRetry=0
 retries=0
