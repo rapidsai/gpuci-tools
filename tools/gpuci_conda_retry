@@ -26,7 +26,7 @@ args=""
 # Temporarily set this to something else (eg. a script called "testConda" that
 # prints "CondaHTTPError:" and exits with 1) for testing this script.
 #condaCmd=./testConda
-condaCmd=conda
+condaCmd=${CONDA_EXE:=conda}
 
 # Function to output messages to stderr
 # FIXME - extend `gpuci_logger` or make another script for this
