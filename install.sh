@@ -17,16 +17,16 @@ function install_tool {
 }
 
 logging "Creating ~/.gpuci dir..."
-mkdir -p $HOME/.gpuci
+mkdir -p "$HOME/.gpuci"
 
 install_tool gpuci_retry
 install_tool gpuci_logger
 install_tool gpuci_conda_retry
 
 logging "Adding ~/.gpuci to PATH in ~/.bashrc ..."
-touch $HOME/.bashrc
-echo "export PATH=\"\$HOME/.gpuci:\$PATH\"" >> $HOME/.bashrc
-source $HOME/.bashrc
+touch "$HOME/.bashrc"
+echo "export PATH=\"\$HOME/.gpuci:\$PATH\"" >> "$HOME/.bashrc"
+source "$HOME/.bashrc"
 
 logging "Tools installed..."
 logging "Use 'source ~/.bashrc' to use tools in current shell..."
