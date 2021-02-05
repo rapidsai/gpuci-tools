@@ -15,3 +15,10 @@ curl -s https://raw.githubusercontent.com/rapidsai/gpuci-tools/main/install.sh |
 source ~/.bashrc
 cd ~
 ```
+
+### `git` method
+```
+git clone https://github.com/rapidsai/gpuci-tools.git .gpuci
+chmod +x .gpuci/tools/*
+export PATH="$PWD/.gpuci/tools:$PATH"
+```
