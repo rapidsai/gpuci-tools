@@ -12,7 +12,7 @@ function logging {
 function install_tool {
   logging "Installing $1 script..."
   SAVE_LOC="$HOME/.gpuci/${1}"
-  curl -s "${URL}/${1}" -o "$SAVE_LOC" > /dev/null
+  curl -s --retry 5 "${URL}/${1}" -o "$SAVE_LOC" > /dev/null
   chmod +x "$SAVE_LOC"
   logging "Installed $1 script..."
 }
