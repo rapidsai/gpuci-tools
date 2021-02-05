@@ -1,6 +1,6 @@
 #!/bin/bash
 # Installer for gpuCI tools
-set -ex
+set -e
 
 URL="https://raw.githubusercontent.com/rapidsai/gpuci-tools/main/tools"
 
