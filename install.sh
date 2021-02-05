@@ -27,7 +27,6 @@ install_tool gpuci_conda_retry
 logging "Adding ~/.gpuci to PATH in ~/.bashrc ..."
 touch "$HOME/.bashrc"
 echo "export PATH=\"\$HOME/.gpuci:\$PATH\"" >> "$HOME/.bashrc"
-source "$HOME/.bashrc"
 
 logging "Tools installed..."
 logging "Use 'source ~/.bashrc' to use tools in current shell..."
