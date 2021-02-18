@@ -51,7 +51,8 @@ args=""
 # Temporarily set this to something else (eg. a script called "testConda" that
 # prints "CondaHTTPError:" and exits with 1) for testing this script.
 #mambaCmd=./testConda
-mambaCmd=${CONDA_EXE:=mamba}
+MAMBA_BIN=$CONDA_PREFIX/bin/mamba
+mambaCmd=${MAMBA_BIN:=mamba}
 
 # Function to output messages to stderr
 # FIXME - extend `gpuci_logger` or make another script for this
