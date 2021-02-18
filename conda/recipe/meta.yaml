@@ -13,6 +13,10 @@ source:
 build:
   number: {{ git_revision_count }}
 
+requirements:
+  run:
+    - mamba::conda-forge
+
 test:
   commands:
     - gpuci_logger "test"
