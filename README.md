@@ -6,9 +6,14 @@ User tools for use within the gpuCI environment
 
 ## Install gpuCI tools
 
-### `conda` method
+### `conda` method w/o mamba
 ```
 conda install -c gpuci gpuci-tools
+```
+
+### `conda` method w/ mamba
+```
+conda install -c gpuci -c conda-forge gpuci-tools mamba
 ```
 
 ### `curl` method
