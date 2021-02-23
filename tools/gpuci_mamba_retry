@@ -68,7 +68,7 @@ function echo_stderr {
 # output variables:
 #    exitcode: the exit code from running ${mambaCmd} ${args}
 #    needToRetry: 1 if the command should be retried, 0 if it should not be
-function runConda {
+function runMamba {
     ${mambaCmd} ${args} 2>&1| tee ${outfile}
     exitcode=$?
     needToRetry=0
@@ -123,7 +123,7 @@ done
 
 # Run command
 outfile=$(mktemp)
-runConda ${args}
+rumMamba ${args}
 
 # Retry loop, only if needed
 while (( ${needToRetry} == 1 )) && \
@@ -134,7 +134,7 @@ while (( ${needToRetry} == 1 )) && \
    sleep ${sleep_interval}
    echo_stderr "Starting, retry ${retries} of ${max_retries} -> sleep done..."
 
-   runConda ${args}
+   rumMamba ${args}
 done
 
 rm -f ${outfile}
