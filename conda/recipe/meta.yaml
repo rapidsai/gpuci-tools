@@ -15,7 +15,7 @@ build:
 
 requirements:
   run:
-    - mamba::conda-forge
+    - conda-forge::mamba
 
 test:
   commands:
