@@ -29,12 +29,11 @@
 function gpuci_retry {
     command=$1
     shift
-    args=$*
     max_retries=${GPUCI_RETRY_MAX:=3}
     retries=0
     sleep_interval=${GPUCI_RETRY_SLEEP:=10}
 
-    ${command} ${args}
+    ${command} "$@"
     retcode=$?
     while (( ${retcode} != 0 )) && \
           (( ${retries} < ${max_retries} )); do
@@ -43,10 +42,10 @@ function gpuci_retry {
       sleep ${sleep_interval}
       gpuci_logger "gpuci_retry: sleep done -> retrying..."
 
-      ${command} ${args}
+      ${command} "$@"
       retcode=$?
     done
     return ${retcode}
 }
 
-gpuci_retry $@
+gpuci_retry "$@"
