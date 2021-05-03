@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # gpuci_conda_retry
-# 
+#
 # wrapper for conda that retries the command after a CondaHTTPError,
 # ChecksumMismatchError, or JSONDecodeError (ideally, any conda error that
 # is normally resolved by retrying)
@@ -89,8 +89,11 @@ function runConda {
         elif grep -q ChunkedEncodingError: ${outfile}; then
             retryingMsg="Retrying, found 'ChunkedEncodingError:' in output..."
             needToRetry=1
+        elif grep -q CondaMultiError: ${outfile}; then
+            retryingMsg="Retrying, found 'CondaMultiError:' in output..."
+            needToRetry=1
         else
-            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'ChunkedEncodingError:'"
+            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'ChunkedEncodingError:' or 'CondaMultiError:'"
         fi
 
         if (( ${needToRetry} == 1 )) && \
