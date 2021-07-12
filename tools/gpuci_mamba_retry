@@ -123,7 +123,7 @@ done
 
 # Run command
 outfile=$(mktemp)
-rumMamba ${args}
+runMamba ${args}
 
 # Retry loop, only if needed
 while (( ${needToRetry} == 1 )) && \
@@ -134,7 +134,7 @@ while (( ${needToRetry} == 1 )) && \
    sleep ${sleep_interval}
    echo_stderr "Starting, retry ${retries} of ${max_retries} -> sleep done..."
 
-   rumMamba ${args}
+   runMamba ${args}
 done
 
 rm -f ${outfile}
