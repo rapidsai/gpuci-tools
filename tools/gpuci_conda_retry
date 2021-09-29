@@ -92,8 +92,11 @@ function runConda {
         elif grep -q CondaMultiError: ${outfile}; then
             retryingMsg="Retrying, found 'CondaMultiError:' in output..."
             needToRetry=1
+        elif grep -q EOFError: ${outfile}; then
+            retryingMsg="Retrying, found 'EOFError:' in output..."
+            needToRetry=1
         else
-            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'ChunkedEncodingError:' or 'CondaMultiError:'"
+            echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'ChunkedEncodingError:' or 'CondaMultiError:' or 'EOFError:'"
         fi
 
         if (( ${needToRetry} == 1 )) && \
