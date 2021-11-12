@@ -71,6 +71,7 @@ function runConda {
     ${condaCmd} ${args} 2>&1| tee ${outfile}
     exitcode=$?
     needToRetry=0
+    needToClean=0
     retryingMsg=""
 
     if (( ${exitcode} != 0 )); then
@@ -90,8 +91,9 @@ function runConda {
             retryingMsg="Retrying, found 'ChunkedEncodingError:' in output..."
             needToRetry=1
         elif grep -q CondaMultiError: ${outfile}; then
-            retryingMsg="Retrying, found 'CondaMultiError:' in output..."
+            retryingMsg="Retrying after cleaning tarball cache, found 'CondaMultiError:' in output..."
             needToRetry=1
+            needToClean=1
         elif grep -q EOFError: ${outfile}; then
             retryingMsg="Retrying, found 'EOFError:' in output..."
             needToRetry=1
@@ -106,6 +108,10 @@ function runConda {
         else
             # Give reason for retry
             echo_stderr $retryingMsg
+            if (( ${needToClean} == 1 )); then
+                echo_stderr "Cleaning tarball cache before retrying..."
+                ${condaCmd} clean --tarballs -y
+            fi
         fi
 fi
 }
