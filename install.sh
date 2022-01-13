@@ -23,6 +23,7 @@ mkdir -p "$HOME/.gpuci"
 install_tool gpuci_retry
 install_tool gpuci_logger
 install_tool gpuci_conda_retry
+install_tool gpuci_mamba_retry
 
 logging "Adding ~/.gpuci to PATH in ~/.bashrc ..."
 touch "$HOME/.bashrc"
