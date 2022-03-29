@@ -89,8 +89,11 @@ function runMamba {
         elif grep -q EOFError: ${outfile}; then
             retryingMsg="Retrying, found 'EOFError:' in output..."
             needToRetry=1
+        elif grep -q "Multi-download failed" ${outfile}; then
+            retryingMsg="Retrying, found 'Multi-download failed' in output..."
+            needToRetry=1
         else
-            echo_stderr "Exiting, no retryable mamba errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'EOFError:'"
+            echo_stderr "Exiting, no retryable mamba errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'EOFError:' or 'Multi-download failed'"
         fi
 
         if (( ${needToRetry} == 1 )) && \
