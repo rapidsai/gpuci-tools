@@ -1,0 +1,72 @@
+#!/bin/bash
+# A utility script that examines environment variables provided
+# by Jenkins to print out an S3 path where the expected artifact
+# should be.
+# Positional Arguments:
+#   1) a string of "cpp" or "python" which determines which artifact path
+#      name should be returned
+set -e
+
+PKG_TYPE="$1"
+case "${PKG_TYPE}" in
+  cpp)
+    ;&
+  python)
+    ;;
+  *)
+    echo 'Pass "cpp" or "python" as an argument.'
+    exit 1
+    ;;
+esac
+
+BUILD_TYPE=$(rapids-build-type)
+case "${BUILD_TYPE}" in
+  pull-request)
+    # For PRs, $GIT_BRANCH is either like:
+    # PR-989 or external-pr-989
+    S3_DIRECTORY_ID="${GIT_BRANCH##*-}"
+    S3_PREFIX="ci"
+    ;;
+  branch)
+    S3_DIRECTORY_ID="${GIT_BRANCH}"
+    S3_PREFIX="ci"
+    ;;
+  nightly)
+    S3_DIRECTORY_ID="$(date +%F)"
+    S3_PREFIX="nightly"
+    ;;
+  *)
+    echo 'Missing valid "BUILD_TYPE" environment variable.'
+    exit 1
+    ;;
+esac
+
+# Parse path values from Jenkins environment variables
+REPO_NAME=$(basename ${GIT_URL} .git)
+SHORT_HASH=${GIT_COMMIT:0:7}
+PKG_NAME="${REPO_NAME}_${PKG_TYPE}"
+if [[ "${PKG_TYPE}" == "python" ]]; then
+  PKG_NAME+="_${PY_VER/./}"
+fi
+PKG_NAME+="_$(arch).tar.gz"
+
+#
+# The output format should be one of the following:
+#
+## For PR builds:
+## s3://rapids-downloads/ci/<REPO_NAME>/pull-request/<PR_NUMBER>/<SHORT_HASH>/<PKG_NAME>
+
+## For branch builds:
+## s3://rapids-downloads/ci/<REPO_NAME>/branch/<BRANCH_NAME>/<SHORT_HASH>/<PKG_NAME>
+
+## For nightly builds:
+## s3://rapids-downloads/nightly/<REPO_NAME>/<DATE>/<SHORT_HASH>/<PKG_NAME>
+
+
+S3_PATH="s3://rapids-downloads/${S3_PREFIX}/${REPO_NAME}/"
+if [[ "${BUILD_TYPE}" != "nightly" ]]; then
+  S3_PATH+="${BUILD_TYPE}/"
+fi
+S3_PATH+="${S3_DIRECTORY_ID}/${SHORT_HASH}/${PKG_NAME}"
+
+echo -n "${S3_PATH}"
