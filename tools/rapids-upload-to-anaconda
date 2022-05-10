@@ -42,7 +42,7 @@ if [[ "${GIT_BRANCH}" == "main" ]]; then
   CONDA_TOKEN="${STABLE_CONDA_TOKEN}"
 fi
 
-
+echo "Uploading packages to Anaconda.org: ${PKGS_TO_UPLOAD}" 1>&2 # echo to stderr
 anaconda \
   -t "${CONDA_TOKEN}" \
   upload \

@@ -22,6 +22,7 @@ TAR_FILE="/tmp/${PKG_TYPE}.tar.gz"
 
 # Download tarball
 S3_PATH=$(rapids-s3-path "${PKG_TYPE}")
+echo "Downloading from ${S3_PATH}" 1>&2 # echo to stderr
 aws s3 cp --only-show-errors "${S3_PATH}" "${TAR_FILE}"
 
 # Extract tarball
