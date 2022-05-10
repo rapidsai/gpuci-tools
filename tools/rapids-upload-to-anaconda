@@ -47,7 +47,7 @@ anaconda \
   -t "${CONDA_TOKEN}" \
   upload \
   -u "${CONDA_USERNAME}" \
-  --label main \
+  --label "${CONDA_UPLOAD_LABEL:-main}" \
   --skip-existing \
   --no-progress \
   ${PKGS_TO_UPLOAD}
