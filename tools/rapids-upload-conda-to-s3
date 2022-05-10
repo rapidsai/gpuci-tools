@@ -1,0 +1,27 @@
+#!/bin/bash
+# A utility script that tars up `/tmp/conda-bld-output` and uploads it to S3
+# Positional Arguments:
+#   1) a string of "cpp" or "python" which determines which conda artifact
+#      should be uploaded
+set -e
+
+PKG_TYPE="$1"
+case "${PKG_TYPE}" in
+  cpp)
+    ;&
+  python)
+    ;;
+  *)
+    echo 'Pass "cpp" or "python" as an argument.'
+    exit 1
+    ;;
+esac
+
+# Create tarball
+TAR_FILE="/tmp/${PKG_TYPE}.tar.gz"
+tar -czf "${TAR_FILE}" -C /tmp/conda-bld-output .
+
+# Upload tarball
+S3_PATH=$(rapids-s3-path "${PKG_TYPE}")
+echo "Uploading to ${S3_PATH}" 1>&2 # echo to stderr
+aws s3 cp --only-show-errors "${TAR_FILE}" "${S3_PATH}"
