@@ -16,19 +16,12 @@ if [[ "${IS_NIGHTLY}" = "true" ]]; then
   echo_build_type "nightly"
 fi
 
-# PR build from organization members:
-# For these builds, GIT_BRANCH is equal to "PR-<NUM>"
-# i.e. PR-784
-if [[ "${GIT_BRANCH}" =~ ^PR-[0-9]+$ ]]; then
-  echo_build_type "pull-request"
-fi
-
-# PR build from external contributors (non-organization members):
-# For these builds, GIT_BRANCH is equal to "external-pr-<NUM>"
-# i.e. external-pr-784
+# PR builds:
+# For these builds, GIT_BRANCH is equal to "pull-request/<NUM>"
+# i.e. pull-request/784
 # Technically these builds are branch builds since we copy the
 # forked code to the source repository.
-if [[ "${GIT_BRANCH}" =~ ^external-pr-[0-9]+$ ]]; then
+if [[ "${GIT_BRANCH}" =~ ^pull-request/[0-9]+$ ]]; then
   echo_build_type "pull-request"
 fi
 
