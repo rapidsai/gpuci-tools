@@ -22,9 +22,9 @@ esac
 BUILD_TYPE=$(rapids-build-type)
 case "${BUILD_TYPE}" in
   pull-request)
-    # For PRs, $GIT_BRANCH is either like:
-    # PR-989 or external-pr-989
-    S3_DIRECTORY_ID="${GIT_BRANCH##*-}"
+    # PR commits are merge commits (i.e. refs/pull/<PR_NUM>/merge),
+    # so get the parent commit ID to match the last PR SHA.
+    S3_DIRECTORY_ID="$(git rev-list HEAD^2 -1)"
     S3_PREFIX="ci"
     ;;
   branch)
