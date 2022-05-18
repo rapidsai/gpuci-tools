@@ -56,7 +56,7 @@ mambaCmd=${MAMBA_BIN:=mamba}
 # Function to output messages to stderr
 # FIXME - extend `gpuci_logger` or make another script for this
 function echo_stderr {
-    echo "    [gpuci_mamba_retry] $@" >&2
+    echo "    [gpuci_mamba_retry] $*" >&2
 }
 
 # Function to run conda and check output for specific retryable errors
@@ -68,41 +68,42 @@ function echo_stderr {
 #    exitcode: the exit code from running ${mambaCmd} ${args}
 #    needToRetry: 1 if the command should be retried, 0 if it should not be
 function runMamba {
-    ${mambaCmd} ${args} 2>&1| tee ${outfile}
+    # shellcheck disable=SC2086
+    ${mambaCmd} ${args} 2>&1| tee "${outfile}"
     exitcode=$?
     needToRetry=0
     retryingMsg=""
 
-    if (( ${exitcode} != 0 )); then
+    if (( exitcode != 0 )); then
         # Show exit code
         echo_stderr "Failed, mamba returned exit code: ${exitcode}"
 
-        if grep -q CondaHTTPError: ${outfile}; then
+        if grep -q CondaHTTPError: "${outfile}"; then
             retryingMsg="Retrying, found 'CondaHTTPError:' in output..."
             needToRetry=1
-        elif grep -q ChecksumMismatchError: ${outfile}; then
+        elif grep -q ChecksumMismatchError: "${outfile}"; then
             retryingMsg="Retrying, found 'ChecksumMismatchError:' in output..."
             needToRetry=1
-        elif grep -q JSONDecodeError: ${outfile}; then
+        elif grep -q JSONDecodeError: "${outfile}"; then
             retryingMsg="Retrying, found 'JSONDecodeError:' in output..."
             needToRetry=1
-        elif grep -q EOFError: ${outfile}; then
+        elif grep -q EOFError: "${outfile}"; then
             retryingMsg="Retrying, found 'EOFError:' in output..."
             needToRetry=1
-        elif grep -q "Multi-download failed" ${outfile}; then
+        elif grep -q "Multi-download failed" "${outfile}"; then
             retryingMsg="Retrying, found 'Multi-download failed' in output..."
             needToRetry=1
         else
             echo_stderr "Exiting, no retryable mamba errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'EOFError:' or 'Multi-download failed'"
         fi
 
-        if (( ${needToRetry} == 1 )) && \
-           (( ${retries} >= ${max_retries} )); then
+        if (( needToRetry == 1 )) && \
+           (( retries >= max_retries )); then
             # Catch instance where we run out of retries
             echo_stderr "Exiting, reached max retries..."
         else
             # Give reason for retry
-            echo_stderr $retryingMsg
+            echo_stderr "${retryingMsg}"
         fi
 fi
 }
@@ -110,7 +111,7 @@ fi
 
 # Process and remove args recognized only by this script, save others for conda
 # Process help separately
-for arg in $*; do
+for arg in "$@"; do
    opt=${arg%%=*}
    val=${arg##*=}
    if [[ ${opt} == "--help" ]] || [[ ${opt} == "-h" ]]; then
@@ -128,19 +129,21 @@ done
 
 # Run command
 outfile=$(mktemp)
+# shellcheck disable=SC2086
 runMamba ${args}
 
 # Retry loop, only if needed
-while (( ${needToRetry} == 1 )) && \
-      (( ${retries} < ${max_retries} )); do
+while (( needToRetry == 1 )) && \
+      (( retries < max_retries )); do
 
-   retries=$(expr ${retries} + 1)
+   retries=$(( retries + 1 ))
    echo_stderr "Waiting, retry ${retries} of ${max_retries} -> sleeping for ${sleep_interval} seconds..."
-   sleep ${sleep_interval}
+   sleep "${sleep_interval}"
    echo_stderr "Starting, retry ${retries} of ${max_retries} -> sleep done..."
 
+   # shellcheck disable=SC2086
    runMamba ${args}
 done
 
-rm -f ${outfile}
+rm -f "${outfile}"
 exit ${exitcode}

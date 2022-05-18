@@ -42,7 +42,7 @@ case "${BUILD_TYPE}" in
 esac
 
 # Parse path values from Jenkins environment variables
-REPO_NAME=$(basename ${GIT_URL} .git)
+REPO_NAME=$(basename "${GIT_URL}" .git)
 SHORT_HASH=${GIT_COMMIT:0:7}
 PKG_NAME="${REPO_NAME}_${PKG_TYPE}"
 if [[ "${PKG_TYPE}" == "python" ]]; then
