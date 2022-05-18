@@ -56,7 +56,7 @@ condaCmd=${CONDA_EXE:=conda}
 # Function to output messages to stderr
 # FIXME - extend `gpuci_logger` or make another script for this
 function echo_stderr {
-    echo "    [gpuci_conda_retry] $@" >&2
+    echo "    [gpuci_conda_retry] $*" >&2
 }
 
 # Function to run conda and check output for specific retryable errors
@@ -68,47 +68,48 @@ function echo_stderr {
 #    exitcode: the exit code from running ${condaCmd} ${args}
 #    needToRetry: 1 if the command should be retried, 0 if it should not be
 function runConda {
-    ${condaCmd} ${args} 2>&1| tee ${outfile}
+    # shellcheck disable=SC2086
+    ${condaCmd} ${args} 2>&1| tee "${outfile}"
     exitcode=$?
     needToRetry=0
     needToClean=0
     retryingMsg=""
 
-    if (( ${exitcode} != 0 )); then
+    if (( exitcode != 0 )); then
         # Show exit code
         echo_stderr "conda returned exit code: ${exitcode}"
 
-        if grep -q CondaHTTPError: ${outfile}; then
+        if grep -q CondaHTTPError: "${outfile}"; then
             retryingMsg="Retrying, found 'CondaHTTPError:' in output..."
             needToRetry=1
-        elif grep -q ChecksumMismatchError: ${outfile}; then
+        elif grep -q ChecksumMismatchError: "${outfile}"; then
             retryingMsg="Retrying, found 'ChecksumMismatchError:' in output..."
             needToRetry=1
-        elif grep -q JSONDecodeError: ${outfile}; then
+        elif grep -q JSONDecodeError: "${outfile}"; then
             retryingMsg="Retrying, found 'JSONDecodeError:' in output..."
             needToRetry=1
-        elif grep -q ChunkedEncodingError: ${outfile}; then
+        elif grep -q ChunkedEncodingError: "${outfile}"; then
             retryingMsg="Retrying, found 'ChunkedEncodingError:' in output..."
             needToRetry=1
-        elif grep -q CondaMultiError: ${outfile}; then
+        elif grep -q CondaMultiError: "${outfile}"; then
             retryingMsg="Retrying after cleaning tarball cache, found 'CondaMultiError:' in output..."
             needToRetry=1
             needToClean=1
-        elif grep -q EOFError: ${outfile}; then
+        elif grep -q EOFError: "${outfile}"; then
             retryingMsg="Retrying, found 'EOFError:' in output..."
             needToRetry=1
         else
             echo_stderr "Exiting, no retryable conda errors detected: 'ChecksumMismatchError:' or 'CondaHTTPError:' or 'JSONDecodeError:' or 'ChunkedEncodingError:' or 'CondaMultiError:' or 'EOFError:'"
         fi
 
-        if (( ${needToRetry} == 1 )) && \
-           (( ${retries} >= ${max_retries} )); then
+        if (( needToRetry == 1 )) && \
+           (( retries >= max_retries )); then
             # Catch instance where we run out of retries
             echo_stderr "Exiting, reached max retries..."
         else
             # Give reason for retry
-            echo_stderr $retryingMsg
-            if (( ${needToClean} == 1 )); then
+            echo_stderr "$retryingMsg"
+            if (( needToClean == 1 )); then
                 echo_stderr "Cleaning tarball cache before retrying..."
                 ${condaCmd} clean --tarballs -y
             fi
@@ -119,7 +120,7 @@ fi
 
 # Process and remove args recognized only by this script, save others for conda
 # Process help separately
-for arg in $*; do
+for arg in "$@"; do
    opt=${arg%%=*}
    val=${arg##*=}
    if [[ ${opt} == "--help" ]] || [[ ${opt} == "-h" ]]; then
@@ -137,19 +138,21 @@ done
 
 # Run command
 outfile=$(mktemp)
+# shellcheck disable=SC2086
 runConda ${args}
 
 # Retry loop, only if needed
-while (( ${needToRetry} == 1 )) && \
-      (( ${retries} < ${max_retries} )); do
+while (( needToRetry == 1 )) && \
+      (( retries < max_retries )); do
 
-   retries=$(expr ${retries} + 1)
+   retries=$(( retries + 1 ))
    echo_stderr "Waiting, retry ${retries} of ${max_retries} -> sleeping for ${sleep_interval} seconds..."
-   sleep ${sleep_interval}
+   sleep "${sleep_interval}"
    echo_stderr "Starting, retry ${retries} of ${max_retries} -> sleep done..."
 
+   # shellcheck disable=SC2086
    runConda ${args}
 done
 
-rm -f ${outfile}
+rm -f "${outfile}"
 exit ${exitcode}

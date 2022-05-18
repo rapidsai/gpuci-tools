@@ -35,8 +35,8 @@ function gpuci_retry {
 
     ${command} "$@"
     retcode=$?
-    while (( ${retcode} != 0 )) && \
-          (( ${retries} < ${max_retries} )); do
+    while (( retcode != 0 )) && \
+          (( retries < max_retries )); do
       ((retries++))
       gpuci_logger "gpuci_retry: retry ${retries} of ${max_retries} | exit code: (${retcode}) -> sleeping for ${sleep_interval} seconds..."
       sleep ${sleep_interval}
