@@ -154,5 +154,5 @@ while (( needToRetry == 1 )) && \
    runConda ${args}
 done
 
-rm -f "${outfile}"
+rm -f ${outfile}
 exit ${exitcode}
