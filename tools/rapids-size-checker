@@ -1,26 +1,21 @@
 #!/bin/bash
 set -e
 
-# CHANGE_TARGET is provided by PR builds.
-# It's not set for branch builds (i.e. external PRs)
-BASE_BRANCH=${CHANGE_TARGET:-""}
 REPO_NAME=$(basename "${GIT_URL}" .git)
 ORG_NAME=$(basename "$(dirname "${GIT_URL}")")
 
-if [ -z "$BASE_BRANCH" ]; then
-  echo "Retrieving base branch from GitHub API:"
-  # For PRs, $GIT_BRANCH is either like:
-  # PR-989 or external-pr-989
-  PR_NUM="${GIT_BRANCH##*-}"
-  [[ -n "$GH_TOKEN" ]] && CURL_HEADERS=('-H' "Authorization: token ${GH_TOKEN}")
-  RESP=$(
-    curl \
-      -H "Accept: application/vnd.github.v3+json" \
-      "${CURL_HEADERS[@]}" \
-      "https://api.github.com/repos/${ORG_NAME}/${REPO_NAME}/pulls/${PR_NUM}"
-  )
-  BASE_BRANCH=$(echo "${RESP}" | jq -r '.base.ref')
-fi
+echo "Retrieving base branch from GitHub API:"
+# For PRs, $GIT_BRANCH is like:
+# pull-request/989
+PR_NUM="${GIT_BRANCH##*/}"
+[[ -n "$GH_TOKEN" ]] && CURL_HEADERS=('-H' "Authorization: token ${GH_TOKEN}")
+RESP=$(
+curl \
+    -H "Accept: application/vnd.github.v3+json" \
+    "${CURL_HEADERS[@]}" \
+    "https://api.github.com/repos/${ORG_NAME}/${REPO_NAME}/pulls/${PR_NUM}"
+)
+BASE_BRANCH=$(echo "${RESP}" | jq -r '.base.ref')
 
 DIFF_FILES=$(mktemp)
 LARGE_FILES=$(mktemp)
@@ -37,6 +32,7 @@ conda activate rapids
 git fetch origin
 git diff --name-only origin/"${BASE_BRANCH}"..HEAD > "${DIFF_FILES}"
 
+echo "### Comparing ${BASE_BRANCH} to HEAD:"
 echo '### Files modified in current PR'
 while read -r FILE; do
     echo "Size check ${FILE}"
