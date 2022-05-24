@@ -22,9 +22,9 @@ esac
 BUILD_TYPE=$(rapids-build-type)
 case "${BUILD_TYPE}" in
   pull-request)
-    # For PRs, $GIT_BRANCH is either like:
-    # PR-989 or external-pr-989
-    S3_DIRECTORY_ID="${GIT_BRANCH##*-}"
+    # For PRs, $GIT_BRANCH is like:
+    # pull-request/989
+    S3_DIRECTORY_ID="${GIT_BRANCH##*/}"
     S3_PREFIX="ci"
     ;;
   branch)
