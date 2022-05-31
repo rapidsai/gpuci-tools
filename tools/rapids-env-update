@@ -16,3 +16,6 @@ if [[ "${BUILD_TYPE}" != "pull-request" && "${GIT_BRANCH}" = branch-* ]] ; then
   VERSION_SUFFIX=$(date +%y%m%d)
   export VERSION_SUFFIX
 fi
+
+# FIXME: Remove this line once `boa` is properly installed in our CI images
+gpuci_mamba_retry install -y -c conda-forge boa
