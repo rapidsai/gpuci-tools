@@ -19,16 +19,15 @@ case "${PKG_TYPE}" in
     ;;
 esac
 
-BUILD_TYPE=$(rapids-build-type)
 case "${BUILD_TYPE}" in
   pull-request)
-    # For PRs, $GIT_BRANCH is like:
-    # pull-request/989
-    S3_DIRECTORY_ID="${GIT_BRANCH##*/}"
+    # For PRs, $GITHUB_REF_NAME is like:
+    # 1058/merge
+    S3_DIRECTORY_ID="${GITHUB_REF_NAME%%/*}"
     S3_PREFIX="ci"
     ;;
   branch)
-    S3_DIRECTORY_ID="${GIT_BRANCH}"
+    S3_DIRECTORY_ID="${GITHUB_REF_NAME}"
     S3_PREFIX="ci"
     ;;
   nightly)
@@ -42,8 +41,9 @@ case "${BUILD_TYPE}" in
 esac
 
 # Parse path values from Jenkins environment variables
-REPO_NAME=$(basename "${GIT_URL}" .git)
-SHORT_HASH=${GIT_COMMIT:0:7}
+# $GITHUB_REPOSITORY is like "owner/rapository"
+REPO_NAME="${GITHUB_REPOSITORY##*/}"
+SHORT_HASH=${GITHUB_SHA:0:7}
 PKG_NAME="${REPO_NAME}_${PKG_TYPE}"
 if [[ "${PKG_TYPE}" == "python" ]]; then
   PKG_NAME+="_${PY_VER/./}"

@@ -4,18 +4,14 @@
 # a nightly or stable build is occurring.
 set -e
 
-
 # Remove nightly channels if we are building main branch
-if [[ "${GIT_BRANCH}" = "main" ]]; then
+if [[ "${GITHUB_REF_NAME}" = "main" ]]; then
   conda config --system --remove channels rapidsai-nightly
   conda config --system --remove channels dask/label/dev
 fi
 
 # If nightly build, append current YYMMDD to version
-if [[ "${BUILD_TYPE}" != "pull-request" && "${GIT_BRANCH}" = branch-* ]] ; then
+if [[ "${BUILD_TYPE}" != "pull-request" && "${GITHUB_REF_NAME}" = branch-* ]] ; then
   VERSION_SUFFIX=$(date +%y%m%d)
   export VERSION_SUFFIX
 fi
-
-# FIXME: Remove this line once `boa` is properly installed in our CI images
-gpuci_mamba_retry install -y -c conda-forge boa
