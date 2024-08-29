@@ -17,7 +17,7 @@ if [ ! -d "${SEARCH_DIR}" ]; then
   exit 1
 fi
 
-PKGS_TO_UPLOAD=$(find "${SEARCH_DIR}" -name "*.tar.bz2")
+PKGS_TO_UPLOAD=$(find "${SEARCH_DIR}" -name "*.conda" -o -name "*.tar.bz2")
 if [ -z "${PKGS_TO_UPLOAD}" ]; then
   echo "Couldn't find any packages to upload in: ${SEARCH_DIR}."
   ls -l "${SEARCH_DIR}/"*
