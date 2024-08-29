@@ -22,4 +22,6 @@ fi
 conda config --set ssl_verify false
 conda install -k conda-build conda-verify anaconda-client
 conda build conda/recipe
-anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-gpuci} --label main --skip-existing /opt/conda/conda-bld/${ARCH_DIR}/gpuci-tools*.tar.bz2
+anaconda -t ${MY_UPLOAD_KEY} upload -u ${CONDA_USERNAME:-gpuci} --label main --skip-existing \
+  /opt/conda/conda-bld/${ARCH_DIR}/gpuci-tools*.tar.bz2 \
+;
