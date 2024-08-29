@@ -26,7 +26,6 @@
 #                         seconds, to wait between retries.
 #                         Default is a 10 second sleep
 #
-
 function gpuci_retry {
     command=$1
     shift

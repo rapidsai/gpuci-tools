@@ -4,7 +4,6 @@
 #
 # provides a logging mechanism for scripts to report progress
 #
-
 function gpuci_logger {
   TS=$(date '+%x %T')
   # shellcheck disable=SC2000

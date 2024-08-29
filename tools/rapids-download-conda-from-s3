@@ -4,7 +4,6 @@
 # Positional Arguments:
 #   1) a string of "cpp" or "python" which determines which conda artifact
 #      should be downloaded
-
 set -e
 
 PKG_TYPE="$1"

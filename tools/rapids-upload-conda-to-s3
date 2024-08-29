@@ -3,7 +3,6 @@
 # Positional Arguments:
 #   1) a string of "cpp" or "python" which determines which conda artifact
 #      should be uploaded
-
 set -e
 
 PKG_TYPE="$1"

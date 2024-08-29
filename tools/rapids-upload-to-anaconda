@@ -3,7 +3,6 @@
 # uploads them to Anaconda.org
 # Positional Arguments:
 #   1) a directory path to search for conda packages
-
 set -e
 
 SEARCH_DIR="$1"

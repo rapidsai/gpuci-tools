@@ -22,7 +22,6 @@
 #                               seconds, to wait between retries.
 #                               Default is a 10 second sleep
 #
-
 set -o pipefail
 
 mambaretry_help="
