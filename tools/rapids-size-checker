@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 REPO_NAME=$(basename "${GIT_URL}" .git)

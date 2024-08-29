@@ -2,6 +2,7 @@
 # A utility script that examines environment variables provided
 # by Jenkins to determine whether a given build is a "nightly", "pull-request",
 # or "branch" build.
+
 set -e
 
 echo_build_type() {

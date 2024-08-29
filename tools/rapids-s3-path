@@ -5,6 +5,7 @@
 # Positional Arguments:
 #   1) a string of "cpp" or "python" which determines which artifact path
 #      name should be returned
+
 set -e
 
 PKG_TYPE="$1"
